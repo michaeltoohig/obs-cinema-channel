@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from cinema_playout.config import INFO_NEXT_PLAYING, INFO_NOW_PLAYING, SCENE_FEATURE, SERVER_ID, SOURCE_NOW_PLAYING
+from cinema_playout.config import INFO_NEXT_PLAYING, INFO_NOW_PLAYING, LOCAL_CINEMA_PATH, SERVER_ID
 from cinema_playout.database.models import Feature, Playlist
 from cinema_playout.database.session import Session
 from cinema_playout.loggerfactory import LoggerFactory
@@ -13,8 +13,8 @@ logger = LoggerFactory.get_logger("obs.playout")
 
 
 # TODO set path root to config - path accessible by Python
-now_playing_file = Path("/mnt/cinema-media/CinemaPlayout") / f"server-{SERVER_ID}" / INFO_NOW_PLAYING
-next_playing_file = Path("/mnt/cinema-media/CinemaPlayout") / f"server-{SERVER_ID}" / INFO_NEXT_PLAYING
+now_playing_file = Path(f"{LOCAL_CINEMA_PATH}/CinemaPlayout") / f"server-{SERVER_ID}" / INFO_NOW_PLAYING
+next_playing_file = Path(f"{LOCAL_CINEMA_PATH}/CinemaPlayout") / f"server-{SERVER_ID}" / INFO_NEXT_PLAYING
 
 
 async def setup_playout(client):

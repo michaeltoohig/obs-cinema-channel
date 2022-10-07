@@ -23,6 +23,8 @@ SCENE_HOLD = os.environ.get("SCENE_HOLD")
 SOURCE_HOLD_VIDEO = os.environ.get("SOURCE_HOLD_VIDEO")
 SOURCE_HOLD_MUSIC = os.environ.get("SOURCE_HOLD_MUSIC")
 
-
 INFO_NOW_PLAYING = os.environ.get("INFO_NOW_PLAYING")
 INFO_NEXT_PLAYING = os.environ.get("INFO_NEXT_PLAYING")
+
+LOCAL_CINEMA_PATH = os.environ.get("LOCAL_CINEMA_PATH")
+OBS_CINEMA_PATH = os.environ.get("OBS_CINEMA_PATH")
