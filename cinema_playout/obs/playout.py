@@ -28,7 +28,7 @@ def set_now_playing(feature):
 
 
 def set_next_playing(feature, start):
-    next_playing_file.write_text(f"Next @ {start.strftime('%-I:%M %p')}: {str(feature)}")
+    next_playing_file.write_text(f"Next @ {start.strftime('%I:%M %p')}: {str(feature)}")
 
 
 async def show_feature_name_loop(client):
