@@ -1,34 +1,9 @@
 # cinema-playout
 
-
-[![pypi](https://img.shields.io/pypi/v/cinema-playout.svg)](https://pypi.org/project/cinema-playout/)
-[![python](https://img.shields.io/pypi/pyversions/cinema-playout.svg)](https://pypi.org/project/cinema-playout/)
-[![Build Status](https://github.com/michaeltoohig/cinema-playout/actions/workflows/dev.yml/badge.svg)](https://github.com/michaeltoohig/cinema-playout/actions/workflows/dev.yml)
-[![codecov](https://codecov.io/gh/michaeltoohig/cinema-playout/branch/main/graphs/badge.svg)](https://codecov.io/github/michaeltoohig/cinema-playout)
-
-
-
 Cinema channel playout with OBS
 
-
-* Documentation: <https://michaeltoohig.github.io/cinema-playout>
-* GitHub: <https://github.com/michaeltoohig/cinema-playout>
-* PyPI: <https://pypi.org/project/cinema-playout/>
-* Free software: MIT
-
-
-## Features
-
-* TODO
-
-## TODO
-
-* Use VLC Media Source to play a feature - websockets can set start time for when we are restarting the server
-* Create filler / standby scene for with feature ends until next feature begins
-
-NOTE: using OBS-websockets protocol version 4.9. Version 5.0 is not fully developed and is missing key functionality but should be used in the future.
-
-https://github.com/obsproject/obs-websocket/blob/4.x-compat/docs/generated/protocol.md
+Strictly a playout server via OBS taking advantage of some of OBS built in dynamic features such as updating text elements from the contents of text files.
+This project has other components that handle video transcoding, data fetching and playlist building which is not seen here.
 
 ## Usage
 
