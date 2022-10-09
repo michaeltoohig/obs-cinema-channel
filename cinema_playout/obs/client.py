@@ -10,16 +10,19 @@ from pathlib import Path
 import simpleobsws
 
 from cinema_playout.config import (
+    OBS_CINEMA_PATH,
     OBS_HOST,
     OBS_PASSWORD,
     OBS_PORT,
     SCENE_FEATURE,
     SCENE_HOLD,
+    SERVER_ID,
     SOURCE_FEATURE,
     SOURCE_HOLD_MUSIC,
     SOURCE_HOLD_VIDEO,
     SOURCE_NEXT_PLAYING,
     SOURCE_NOW_PLAYING,
+    LOCAL_CINEMA_PATH,
 )
 from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.obs.exceptions import OBSConnectionError
@@ -101,16 +104,25 @@ class OBSClient:
         """
         logger.debug("Play hold")
         await self.request("SetCurrentScene", {"scene-name": SCENE_HOLD})
-        vids = Path("/mnt/cinema-media/CinemaPlayout/server-1/hold-videos").glob("*")
+        vids = (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-videos").glob("*")
         vids = [
-            {"hidden": False, "selected": False, "value": "Y:/" + str(v.relative_to("/mnt/cinema-media"))} for v in vids
+            {
+                "hidden": False,
+                "selected": False,
+                "value": OBS_CINEMA_PATH + str(v.relative_to(LOCAL_CINEMA_PATH)),
+            }
+            for v in vids
         ]
         await self.request("SetSourceSettings", {"sourceName": SOURCE_HOLD_VIDEO, "sourceSettings": {"playlist": vids}})
         await self.request("PlayPauseMedia", {"sourceName": SOURCE_HOLD_VIDEO, "playPause": False})  # play
 
-        music = Path("/mnt/cinema-media/CinemaPlayout/server-1/hold-music").glob("*")
+        music = (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-music").glob("*")
         music = [
-            {"hidden": False, "selected": False, "value": "Y:/" + str(m.relative_to("/mnt/cinema-media"))}
+            {
+                "hidden": False,
+                "selected": False,
+                "value": OBS_CINEMA_PATH + str(m.relative_to(LOCAL_CINEMA_PATH)),
+            }
             for m in music
         ]
         await self.request(
