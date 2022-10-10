@@ -100,6 +100,9 @@ def main_loop():
     if not loop.run_until_complete(client.connect()):
         os._exit(1)
 
+    # TODO add to a periodic update loop... but only during feature play
+    loop.run_until_complete(client.update_hold_media())
+
     loop.create_task(playout_loop(client))
     loop.create_task(show_feature_name_loop(client))
 

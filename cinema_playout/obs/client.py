@@ -98,12 +98,8 @@ class OBSClient:
             },
         )
 
-    async def play_hold(self):
-        """
-        Switch to hold scene and queue up all video backgrounds and music.
-        """
-        logger.debug("Play hold")
-        await self.request("SetCurrentScene", {"scene-name": SCENE_HOLD})
+    async def update_hold_media(self):
+        """Set hold scene media content."""
         vids = (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-videos").glob("*")
         vids = [
             {
@@ -114,8 +110,6 @@ class OBSClient:
             for v in vids
         ]
         await self.request("SetSourceSettings", {"sourceName": SOURCE_HOLD_VIDEO, "sourceSettings": {"playlist": vids}})
-        await self.request("PlayPauseMedia", {"sourceName": SOURCE_HOLD_VIDEO, "playPause": False})  # play
-
         music = (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-music").glob("*")
         music = [
             {
@@ -128,12 +122,21 @@ class OBSClient:
         await self.request(
             "SetSourceSettings", {"sourceName": SOURCE_HOLD_MUSIC, "sourceSettings": {"playlist": music}}
         )
+        await self.request("PlayPauseMedia", {"sourceName": SOURCE_HOLD_VIDEO, "playPause": False})  # play
         await self.request("PlayPauseMedia", {"sourceName": SOURCE_HOLD_MUSIC, "playPause": False})  # play
+
+    async def play_hold(self):
+        """
+        Switch to hold scene and queue up all video backgrounds and music.
+        """
+        logger.debug("Playing hold scene")
+        await self.request("SetCurrentScene", {"scene-name": SCENE_HOLD})
 
     async def show_current_feature_name(self, visible: bool):
         """
         Show current feature name on feature scene.
         """
+        logger.debug("Showing current feature name")
         await self.request(
             "SetSceneItemProperties", {"scene-name": SCENE_FEATURE, "item": SOURCE_NOW_PLAYING, "visible": visible}
         )
@@ -142,6 +145,7 @@ class OBSClient:
         """
         Show next feature name on feature scene.
         """
+        logger.debug("Showing next feature name")
         await self.request(
             "SetSceneItemProperties", {"scene-name": SCENE_FEATURE, "item": SOURCE_NEXT_PLAYING, "visible": visible}
         )
