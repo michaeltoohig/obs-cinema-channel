@@ -144,6 +144,8 @@ def main_loop():
     if not loop.run_until_complete(client.connect()):
         os._exit(1)
 
+    loop.run_until_complete(client.update_hold_media())
+
     start_scheduler()
     update_next_playing()
     loop.create_task(playout_loop(client))

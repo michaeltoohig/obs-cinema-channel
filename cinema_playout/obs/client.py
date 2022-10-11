@@ -99,22 +99,22 @@ class OBSClient:
 
     async def update_hold_media(self):
         """Set hold scene media content."""
-        vids = (Path(LOCAL_MEDIA_PATH) / f"hold-videos").glob("*")
+        vids = (Path(LOCAL_MEDIA_PATH) / "hold-videos").glob("*")
         vids = [
             {
                 "hidden": False,
                 "selected": False,
-                "value": OBS_MEDIA_PATH + str(v.relative_to(LOCAL_MEDIA_PATH)),
+                "value": str(Path(OBS_MEDIA_PATH) / v.relative_to(LOCAL_MEDIA_PATH)),
             }
             for v in vids
         ]
         await self.request("SetSourceSettings", {"sourceName": SOURCE_HOLD_VIDEO, "sourceSettings": {"playlist": vids}})
-        music = (Path(LOCAL_MEDIA_PATH) / f"hold-music").glob("*")
+        music = (Path(LOCAL_MEDIA_PATH) / "hold-music").glob("*")
         music = [
             {
                 "hidden": False,
                 "selected": False,
-                "value": OBS_MEDIA_PATH + str(m.relative_to(LOCAL_MEDIA_PATH)),
+                "value": str(Path(OBS_MEDIA_PATH) / m.relative_to(LOCAL_MEDIA_PATH)),
             }
             for m in music
         ]
