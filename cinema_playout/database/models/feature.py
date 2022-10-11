@@ -1,4 +1,6 @@
+from pathlib import Path, PureWindowsPath
 from sqlalchemy import Column, DateTime, Float, Integer, String, select
+from cinema_playout.config import LOCAL_MEDIA_PATH
 
 from cinema_playout.database.models.base import Base
 
@@ -26,29 +28,16 @@ class Feature(Base):
         else:
             return f"{self.name} ({self.year})"
 
-    # def get_path(self):
-    #     local_root = Path(MEDIA_ROOT)
-    #     relative_path = PureWindowsPath(self._path).relative_to("//10.0.0.126/media")
-    #     return local_root / relative_path
+    @property
+    def path(self) -> PureWindowsPath:
+        return PureWindowsPath(self._path)
+
+    @property
+    def local_path(self) -> Path:
+        relative = self.path.relative_to("//10.0.0.126/media")
+        return Path(LOCAL_MEDIA_PATH) / relative
 
     @classmethod
     def get_by_id(cls, db_session, id):
         query = select(cls).filter(cls.id == id)
         return db_session.execute(query).scalars().one()
-
-    # @classmethod
-    # def get_removed(cls, db_session):
-    #     query = select(cls).filter(cls.status == 99)
-    #     return db_session.execute(query).scalars().all()
-
-    # @classmethod
-    # def get_pending(cls, db_session, orderby: FeatureOrderBy = None):
-    #     query = select(cls).filter(cls.status == 0)
-    #     if orderby:
-    #         query = query.order_by(getattr(cls, orderby.value))
-    #     return db_session.execute(query).scalars().all()
-
-    # @classmethod
-    # def get_active(cls, db_session):
-    #     query = select(cls).filter(cls.status == 1)
-    #     return db_session.execute(query).scalars().all()

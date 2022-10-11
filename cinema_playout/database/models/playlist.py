@@ -65,9 +65,13 @@ class Playlist(Base):
         cls,
         db_session,
         start: datetime,
+        content_type: int = None,
         server_id: int = SERVER_ID,
     ):
-        query = select(cls).filter(cls.server_id == server_id).filter(cls.start > start).order_by(cls.start.desc())
+        query = select(cls).filter(cls.server_id == server_id).filter(cls.start > start)
+        if content_type is not None:
+            query = query.filter(cls._content_type == content_type)
+        query = query.order_by(cls.start.asc()).limit(1)
         return db_session.execute(query).scalars().first()
 
     @classmethod
@@ -76,11 +80,12 @@ class Playlist(Base):
         db_session,
         start: datetime,
         end: datetime = None,
-        server_id: int = None,
+        server_id: int = SERVER_ID,
     ):
         query = select(cls).filter(cls.start >= start)
         if end:
             query = query.filter(cls.start < end)
         if server_id:
             query = query.filter(cls.server_id == server_id)
+        query = query.order_by(cls.start.asc())
         return db_session.execute(query).scalars().all()

@@ -1,6 +1,7 @@
 import click
 
 from .obs import obs as obs_cli
+from .storage import storage as storage_cli
 
 
 @click.group()
@@ -10,3 +11,4 @@ def cli():
 
 
 cli.add_command(obs_cli)
+cli.add_command(storage_cli)

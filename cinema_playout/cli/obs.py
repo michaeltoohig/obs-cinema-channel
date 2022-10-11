@@ -39,14 +39,14 @@ async def test(client):
 
 @obs.command()
 @use_db_session
-def run_playout(db_session):
+def run(db_session):
     """Run OBS."""
     # TODO add tenacity for catch un expected exceptions
     main_loop()
 
-    loop = asyncio.get_event_loop()
-    client = OBSClient(loop=loop)
-    loop.run_until_complete(client.connect())
-    # client.client.register_event_callback(on_event)
-    loop.run_until_complete(test(client))
-    # loop.run_forever()
+    # loop = asyncio.get_event_loop()
+    # client = OBSClient(loop=loop)
+    # loop.run_until_complete(client.connect())
+    # # client.client.register_event_callback(on_event)
+    # loop.run_until_complete(test(client))
+    # # loop.run_forever()

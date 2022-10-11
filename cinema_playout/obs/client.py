@@ -10,19 +10,18 @@ from pathlib import Path
 import simpleobsws
 
 from cinema_playout.config import (
-    OBS_CINEMA_PATH,
+    OBS_MEDIA_PATH,
     OBS_HOST,
     OBS_PASSWORD,
     OBS_PORT,
     SCENE_FEATURE,
     SCENE_HOLD,
-    SERVER_ID,
     SOURCE_FEATURE,
     SOURCE_HOLD_MUSIC,
     SOURCE_HOLD_VIDEO,
     SOURCE_NEXT_PLAYING,
     SOURCE_NOW_PLAYING,
-    LOCAL_CINEMA_PATH,
+    LOCAL_MEDIA_PATH,
 )
 from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.obs.exceptions import OBSConnectionError
@@ -74,14 +73,14 @@ class OBSClient:
         ret = await self.client.call(name, data)
         return ret
 
-    async def play_feature(self, fp: str, offset: int = None):
+    async def play_feature(self, fp: Path, offset: int = None):
         """
         Switch to main feature scene and play feature.
         """
         logger.debug(f"Playing feature {fp}")
         await self.request("SetCurrentScene", {"scene-name": SCENE_FEATURE})
         await self.request(
-            "SetSourceSettings", {"sourceName": SOURCE_FEATURE, "sourceSettings": {"playlist": [{"value": fp}]}}
+            "SetSourceSettings", {"sourceName": SOURCE_FEATURE, "sourceSettings": {"playlist": [{"value": str(fp)}]}}
         )
         if offset:
             logger.debug(f"SetMediaTime offset {offset}")
@@ -100,22 +99,22 @@ class OBSClient:
 
     async def update_hold_media(self):
         """Set hold scene media content."""
-        vids = (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-videos").glob("*")
+        vids = (Path(LOCAL_MEDIA_PATH) / f"hold-videos").glob("*")
         vids = [
             {
                 "hidden": False,
                 "selected": False,
-                "value": OBS_CINEMA_PATH + str(v.relative_to(LOCAL_CINEMA_PATH)),
+                "value": OBS_MEDIA_PATH + str(v.relative_to(LOCAL_MEDIA_PATH)),
             }
             for v in vids
         ]
         await self.request("SetSourceSettings", {"sourceName": SOURCE_HOLD_VIDEO, "sourceSettings": {"playlist": vids}})
-        music = (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-music").glob("*")
+        music = (Path(LOCAL_MEDIA_PATH) / f"hold-music").glob("*")
         music = [
             {
                 "hidden": False,
                 "selected": False,
-                "value": OBS_CINEMA_PATH + str(m.relative_to(LOCAL_CINEMA_PATH)),
+                "value": OBS_MEDIA_PATH + str(m.relative_to(LOCAL_MEDIA_PATH)),
             }
             for m in music
         ]

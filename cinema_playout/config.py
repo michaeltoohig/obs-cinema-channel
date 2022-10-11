@@ -27,4 +27,5 @@ INFO_NOW_PLAYING = os.environ.get("INFO_NOW_PLAYING")
 INFO_NEXT_PLAYING = os.environ.get("INFO_NEXT_PLAYING")
 
 LOCAL_CINEMA_PATH = os.environ.get("LOCAL_CINEMA_PATH")
-OBS_CINEMA_PATH = os.environ.get("OBS_CINEMA_PATH")
+LOCAL_MEDIA_PATH = os.environ.get("LOCAL_MEDIA_PATH")
+OBS_MEDIA_PATH = os.environ.get("OBS_MEDIA_PATH")
