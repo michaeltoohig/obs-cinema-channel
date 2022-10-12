@@ -82,7 +82,7 @@ class Playlist(Base):
         end: datetime = None,
         server_id: int = SERVER_ID,
     ):
-        query = select(cls).filter(cls.start >= start)
+        query = select(cls).filter(cls.end > start)
         if end:
             query = query.filter(cls.start < end)
         if server_id:

@@ -28,7 +28,7 @@ async def copy_playlist_item_to_playout(src: PureWindowsPath):
 
 async def copy_playlist_items():
     """Copy playlist items to playout."""
-    start = datetime.now() - timedelta(hours=3)  # hardcoded value
+    start = datetime.now()
     end = start + timedelta(days=14)  # hardcoded value
     with Session() as db_session:
         playlist_items = Playlist.get_between(db_session, start, end)
