@@ -4,7 +4,7 @@ from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
 
-DEBUG = True if os.environ.get("DEBUG").lower().startswith("t") else False
+DEBUG = True if os.environ.get("DEBUG", "False").lower().startswith("t") else False
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 DATABASE_URI = os.environ.get("DATABASE_URI")
