@@ -54,6 +54,8 @@ async def remove_playlist_items():
             remote_files.append(PureWindowsPath(feature._path).relative_to("//10.0.0.126/media"))  # hardcoded)
     local_files = []
     for fp in (Path(LOCAL_MEDIA_PATH) / "Movies").glob("**/*"):
+        if fp.is_dir():
+            continue
         local_files.append(fp.relative_to(LOCAL_MEDIA_PATH))
     files_to_remove = set(local_files) - set(remote_files)
     for fp in files_to_remove:
