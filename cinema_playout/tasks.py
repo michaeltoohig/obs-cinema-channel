@@ -24,7 +24,8 @@ async def copy_playlist_item_to_playout(src: PureWindowsPath):
     if not DEBUG:
         if not dest.parent.exists():
             dest.parent.mkdir(parents=True, exist_ok=True)
-        await asyncio.to_thread(shutil.copyfile, src, dest)
+        if not dest.exists():
+            await asyncio.to_thread(shutil.copyfile, src, dest)
 
 
 async def copy_playlist_items():
@@ -73,7 +74,8 @@ async def copy_hold_item_to_playout(src: Path):
     if not DEBUG:
         if not dest.parent.exists():
             dest.parent.mkdir()
-        await asyncio.to_thread(shutil.copyfile, src, dest)
+        if not dest.exists():
+            await asyncio.to_thread(shutil.copyfile, src, dest)
 
 
 async def copy_hold_items():
