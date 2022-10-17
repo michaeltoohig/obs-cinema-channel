@@ -12,11 +12,11 @@ from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.obs.client import OBSClient
 from cinema_playout.tasks import (
     copy_hold_items,
-    copy_playlist_item_to_playout,
     copy_playlist_items,
     remove_hold_items,
     remove_playlist_items,
 )
+from cinema_playout.telegram import send_message
 
 logger = LoggerFactory.get_logger("obs.playout")
 
@@ -103,7 +103,7 @@ async def playout_loop(client):
             if playlist_item.content_type == "Feature":
                 feature = Feature.get_by_id(db_session, playlist_item.content_id)
                 if not feature.local_path.exists():
-                    logger.warning(f"Feature is not available in local storage. {feature}")
+                    logger.error(f"Feature is not available in local storage. {feature}")
                     feature = None
                     await client.play_hold()
                     await asyncio.sleep(30)
@@ -138,6 +138,8 @@ async def playout_loop(client):
 
 
 def main_loop():
+    logger.info(f"Starting cinema {SERVER_ID}")
+    logger.error('test')
     loop = asyncio.get_event_loop()
     client = OBSClient(loop=loop)
 

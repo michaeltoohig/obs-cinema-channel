@@ -8,7 +8,7 @@ from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.obs.client import OBSClient
 from cinema_playout.obs.playout import main_loop
 
-logger = LoggerFactory.get_logger("obs")
+logger = LoggerFactory.get_logger("cli.obs")
 
 
 @click.group()

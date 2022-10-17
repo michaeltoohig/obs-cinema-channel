@@ -3,7 +3,7 @@ import shutil
 from datetime import datetime, timedelta
 from pathlib import Path, PureWindowsPath
 
-from cinema_playout.config import LOCAL_CINEMA_PATH, LOCAL_MEDIA_PATH, SERVER_ID
+from cinema_playout.config import DEBUG, LOCAL_CINEMA_PATH, LOCAL_MEDIA_PATH, SERVER_ID
 from cinema_playout.database.models.feature import Feature
 from cinema_playout.database.models.playlist import Playlist
 from cinema_playout.database.session import Session
@@ -21,9 +21,10 @@ async def copy_playlist_item_to_playout(src: PureWindowsPath):
     relative = src.relative_to("//10.0.0.126/media")  # hardcoded
     src = Path(LOCAL_CINEMA_PATH) / relative
     dest = Path(LOCAL_MEDIA_PATH) / relative
-    if not dest.parent.exists():
-        dest.parent.mkdir(parents=True, exist_ok=True)
-    await asyncio.to_thread(shutil.copyfile, src, dest)
+    if not DEBUG:
+        if not dest.parent.exists():
+            dest.parent.mkdir(parents=True, exist_ok=True)
+        await asyncio.to_thread(shutil.copyfile, src, dest)
 
 
 async def copy_playlist_items():
@@ -57,7 +58,8 @@ async def remove_playlist_items():
     files_to_remove = set(local_files) - set(remote_files)
     for fp in files_to_remove:
         logger.info(f"Removing {fp}")
-        # (Path(LOCAL_MEDIA_PATH) / fp).unlink()
+        if not DEBUG:
+            (Path(LOCAL_MEDIA_PATH) / fp).unlink()
 
 
 async def copy_hold_item_to_playout(src: Path):
@@ -66,9 +68,10 @@ async def copy_hold_item_to_playout(src: Path):
     root_path = Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}"
     relative = src.relative_to(root_path)
     dest = Path(LOCAL_MEDIA_PATH) / relative
-    if not dest.parent.exists():
-        dest.parent.mkdir()
-    await asyncio.to_thread(shutil.copyfile, src, dest)
+    if not DEBUG:
+        if not dest.parent.exists():
+            dest.parent.mkdir()
+        await asyncio.to_thread(shutil.copyfile, src, dest)
 
 
 async def copy_hold_items():
@@ -93,7 +96,8 @@ async def remove_hold_items():
         files_to_remove = set(local_files) - set(remote_files)
         for fp in files_to_remove:
             logger.info(f"Removing {fp}")
-            # (Path(LOCAL_MEDIA_PATH) / fp).unlink()
+            if not DEBUG:
+                (Path(LOCAL_MEDIA_PATH) / fp).unlink()
     else:
         logger.warning("No remote hold videos - will not delete local copies")
     # remove music
@@ -106,7 +110,8 @@ async def remove_hold_items():
         files_to_remove = set(local_files) - set(remote_files)
         for fp in files_to_remove:
             logger.info(f"Removing {fp}")
-            # (Path(LOCAL_MEDIA_PATH) / fp).unlink()
+            if not DEBUG:
+                (Path(LOCAL_MEDIA_PATH) / fp).unlink()
     else:
         logger.warning("No remote hold music - will not delete local copies")
 

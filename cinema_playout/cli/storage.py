@@ -7,7 +7,7 @@ from cinema_playout.config import LOCAL_CINEMA_PATH, LOCAL_MEDIA_PATH
 from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.tasks import copy_hold_items, copy_playlist_items, remove_hold_items, remove_playlist_items
 
-logger = LoggerFactory.get_logger("storage")
+logger = LoggerFactory.get_logger("cli.storage")
 
 
 @click.group()

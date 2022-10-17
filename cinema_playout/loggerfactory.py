@@ -1,6 +1,13 @@
 import logging
 
-from cinema_playout.config import LOG_LEVEL
+from cinema_playout.config import SERVER_ID, LOG_LEVEL
+from cinema_playout.telegram import send_message
+
+
+class TelegramHandler(logging.Handler):
+    def emit(self, record):
+        message = f"cinema-{SERVER_ID}: {record.msg}"
+        send_message(message)
 
 
 class LoggerFactory:
@@ -21,6 +28,10 @@ class LoggerFactory:
             LoggerFactory._LOG.setLevel(logging.ERROR)
         elif log_level == "DEBUG":
             LoggerFactory._LOG.setLevel(logging.DEBUG)
+
+        tg_handler = TelegramHandler(logging.ERROR)
+        LoggerFactory._LOG.addHandler(tg_handler)
+
         return LoggerFactory._LOG
 
     @staticmethod
