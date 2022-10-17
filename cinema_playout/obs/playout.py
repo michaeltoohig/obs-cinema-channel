@@ -139,7 +139,6 @@ async def playout_loop(client):
 
 def main_loop():
     logger.info(f"Starting cinema {SERVER_ID}")
-    logger.error('test')
     loop = asyncio.get_event_loop()
     client = OBSClient(loop=loop)
 
