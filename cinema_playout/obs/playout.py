@@ -60,9 +60,8 @@ def update_next_playing():
 def start_scheduler():
     """Scheduler to collect local media files."""
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(copy_content_to_local_storage, "interval", seconds=7200)
-    # scheduler.add_job(update_next_playing, "interval", seconds=900)
-    # scheduler.add_job(show_feature_name, "interval", seconds=900)
+    # Only copy during midnight hours due to playout performance issues
+    scheduler.add_job(copy_content_to_local_storage, "cron", hour=3)
     scheduler.start()
 
 

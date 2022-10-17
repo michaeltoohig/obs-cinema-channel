@@ -17,7 +17,7 @@ async def copy_playlist_item_to_playout(src: PureWindowsPath):
     Copy a remote playlist item to local storage.
     File paths are stored in database as full CIFS share path... which I can't change.
     """
-    logger.info(f"Copying playlist item {src}")
+    logger.debug(f"Checking {src} for copy")
     relative = src.relative_to("//10.0.0.126/media")  # hardcoded
     src = Path(LOCAL_CINEMA_PATH) / relative
     dest = Path(LOCAL_MEDIA_PATH) / relative
@@ -25,6 +25,7 @@ async def copy_playlist_item_to_playout(src: PureWindowsPath):
         if not dest.parent.exists():
             dest.parent.mkdir(parents=True, exist_ok=True)
         if not dest.exists():
+            logger.info(f"Copying playlist item {src}")
             await asyncio.to_thread(shutil.copyfile, src, dest)
 
 
@@ -67,7 +68,7 @@ async def remove_playlist_items():
 
 async def copy_hold_item_to_playout(src: Path):
     """Copy a romote hold item to local storage."""
-    logger.info(f"Copying hold item {src}")
+    logger.debug(f"Checking {src} for copy")
     root_path = Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}"
     relative = src.relative_to(root_path)
     dest = Path(LOCAL_MEDIA_PATH) / relative
@@ -75,6 +76,7 @@ async def copy_hold_item_to_playout(src: Path):
         if not dest.parent.exists():
             dest.parent.mkdir()
         if not dest.exists():
+            logger.info(f"Copying hold item {src}")
             await asyncio.to_thread(shutil.copyfile, src, dest)
 
 
