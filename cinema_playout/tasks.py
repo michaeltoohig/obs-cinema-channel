@@ -20,7 +20,9 @@ async def copy_playlist_item_to_playout(src: PureWindowsPath):
     logger.debug(f"Checking {src} for copy")
     relative = src.relative_to("//10.0.0.126/media")  # hardcoded
     src = Path(LOCAL_CINEMA_PATH) / relative
-    assert src.exists(), "playlist item does not exist in library"
+    if not src.exists():
+        logger.error(f"playlist item {src} does not exist in library")
+        return
     dest = Path(LOCAL_MEDIA_PATH) / relative
     if not DEBUG:
         if not dest.parent.exists():
@@ -69,7 +71,9 @@ async def remove_playlist_items():
 async def copy_hold_item_to_playout(src: Path):
     """Copy a romote hold item to local storage."""
     logger.debug(f"Checking {src} for copy")
-    assert src.exists(), "hold item does not exist in library"
+    if not src.exists():
+        logger.error("hold item does not exist in library")
+        return
     root_path = Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}"
     relative = src.relative_to(root_path)
     dest = Path(LOCAL_MEDIA_PATH) / relative
