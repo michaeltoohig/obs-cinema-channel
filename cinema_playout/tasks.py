@@ -18,6 +18,7 @@ async def copy_playlist_item_to_playout(src: PureWindowsPath):
     File paths are stored in database as full CIFS share path... which I can't change.
     """
     logger.debug(f"Checking {src} for copy")
+    assert src.exists(), "playlist item does not exist in library"
     relative = src.relative_to("//10.0.0.126/media")  # hardcoded
     src = Path(LOCAL_CINEMA_PATH) / relative
     dest = Path(LOCAL_MEDIA_PATH) / relative
@@ -37,8 +38,7 @@ async def copy_playlist_items():
         playlist_items = Playlist.get_between(db_session, start, end)
         for pi in (pi for pi in playlist_items if pi.content_type == "Feature"):
             feature = Feature.get_by_id(db_session, pi.content_id)
-            fp = PureWindowsPath(feature._path)
-            await copy_playlist_item_to_playout(fp)
+            await copy_playlist_item_to_playout(feature.path)
 
 
 async def remove_playlist_items():
@@ -69,6 +69,7 @@ async def remove_playlist_items():
 async def copy_hold_item_to_playout(src: Path):
     """Copy a romote hold item to local storage."""
     logger.debug(f"Checking {src} for copy")
+    assert src.exists(), "hold item does not exist in library"
     root_path = Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}"
     relative = src.relative_to(root_path)
     dest = Path(LOCAL_MEDIA_PATH) / relative
