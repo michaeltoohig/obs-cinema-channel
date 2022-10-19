@@ -86,54 +86,55 @@ async def playout_loop(client):
     feature = None
     await client.request("OpenProjector", {"type": "Preview", "monitor": 1})
 
-    while True:
-        if not feature:
-            with Session() as db_session:
+    with Session() as db_session:
+        while True:
+            if not feature:
                 # TODO get feature within next 30 seconds then start a countdown to begin
                 now = datetime.now()
                 playlist_item = Playlist.get_item_at(db_session, now)
 
-            if not playlist_item:
-                logger.debug("No playlist item currently, checking again later")
-                await client.play_hold()
-                await asyncio.sleep(30)
-                continue
-
-            if playlist_item.content_type == "Feature":
-                feature = Feature.get_by_id(db_session, playlist_item.content_id)
-                if not feature.local_path.exists():
-                    logger.error(f"Feature is not available in local storage. {feature}")
-                    feature = None
+                if not playlist_item:
+                    logger.debug("No playlist item currently, checking again later")
                     await client.play_hold()
                     await asyncio.sleep(30)
                     continue
-                    # asyncio.run(copy_playlist_item_to_playout(feature.path))
-                logger.info(f"Got from playlist {feature}")
-                set_now_playing(feature)
-            else:
-                logger.debug("Playlist item is not a feature, checking again later")
-                await client.play_hold()
-                await asyncio.sleep(30)
-                continue
-        else:
-            offset = (datetime.now() - playlist_item.start).total_seconds() * 1000
-            await client.play_feature(feature.local_path, offset)
-            await client.update_hold_media()
-            update_next_playing()
 
-            while datetime.now() < playlist_item.end:
-
-                sleepUntil = (playlist_item.end - datetime.now()).total_seconds()
-                if sleepUntil <= 60:
-                    logger.debug(f"Final sleeping for {sleepUntil}")
-                    await asyncio.sleep(max(1, sleepUntil - 1))
-                    # Maybe add an event listener for end of video playback as cue to break
-                    break
+                if playlist_item.content_type == "Feature":
+                    feature = Feature.get_by_id(db_session, playlist_item.content_id)
+                    if not feature.local_path.exists():
+                        logger.error(f"Feature is not available in local storage. {feature}")
+                        feature = None
+                        await client.play_hold()
+                        sleepUntil = (playlist_item.end - datetime.now()).total_seconds()
+                        await asyncio.sleep(sleepUntil)
+                        continue
+                        # asyncio.run(copy_playlist_item_to_playout(feature.path))
+                    logger.info(f"Got from playlist {feature}")
+                    set_now_playing(feature)
                 else:
-                    # update_next_playing()
-                    await asyncio.sleep(60)
-            # reset feature to grab next one
-            feature = None
+                    logger.debug("Playlist item is not a feature, checking again later")
+                    await client.play_hold()
+                    await asyncio.sleep(30)
+                    continue
+            else:
+                offset = (datetime.now() - playlist_item.start).total_seconds() * 1000
+                await client.play_feature(feature.local_path, offset)
+                await client.update_hold_media()
+                update_next_playing()
+
+                while datetime.now() < playlist_item.end:
+
+                    sleepUntil = (playlist_item.end - datetime.now()).total_seconds()
+                    if sleepUntil <= 60:
+                        logger.debug(f"Final sleeping for {sleepUntil}")
+                        await asyncio.sleep(max(1, sleepUntil - 1))
+                        # Maybe add an event listener for end of video playback as cue to break
+                        break
+                    else:
+                        # update_next_playing()
+                        await asyncio.sleep(60)
+                # reset feature to grab next one
+                feature = None
 
 
 def main_loop():

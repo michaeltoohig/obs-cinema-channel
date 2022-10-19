@@ -8,3 +8,6 @@
   - [ ] could apscheduler jobs replace asyncio loop?
 
 - [ ] content_type enum instead of dict
+
+- [ ] confirm too many sessions are not being opened by running playout loop
+- [ ] fix bug library copy to local then removes copied files
