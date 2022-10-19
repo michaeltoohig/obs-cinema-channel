@@ -18,9 +18,9 @@ async def copy_playlist_item_to_playout(src: PureWindowsPath):
     File paths are stored in database as full CIFS share path... which I can't change.
     """
     logger.debug(f"Checking {src} for copy")
-    assert src.exists(), "playlist item does not exist in library"
     relative = src.relative_to("//10.0.0.126/media")  # hardcoded
     src = Path(LOCAL_CINEMA_PATH) / relative
+    assert src.exists(), "playlist item does not exist in library"
     dest = Path(LOCAL_MEDIA_PATH) / relative
     if not DEBUG:
         if not dest.parent.exists():
