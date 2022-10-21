@@ -1,6 +1,6 @@
 from click.testing import CliRunner
 
-from cinema_playout.cli import cli
+from cinema_playout.cli.cli import cli
 
 
 def test_version():

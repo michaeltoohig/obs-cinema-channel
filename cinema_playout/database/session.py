@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from cinema_playout.config import DATABASE_URI
+from cinema_playout import config
 
-engine = create_engine(DATABASE_URI)
+engine = create_engine(config.DATABASE_URI)
 
 Session = sessionmaker(
     engine,

@@ -5,8 +5,9 @@ from pathlib import Path
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from cinema_playout.config import INFO_NEXT_PLAYING, INFO_NOW_PLAYING, LOCAL_CINEMA_PATH, SERVER_ID
+from cinema_playout import config
 from cinema_playout.database.models import Feature, Playlist
+from cinema_playout.database.models.playlist import ContentType
 from cinema_playout.database.session import Session
 from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.obs.client import OBSClient
@@ -22,8 +23,12 @@ logger = LoggerFactory.get_logger("obs.playout")
 
 
 # path accessible by Python
-now_playing_file = Path(f"{LOCAL_CINEMA_PATH}/CinemaPlayout") / f"server-{SERVER_ID}" / INFO_NOW_PLAYING
-next_playing_file = Path(f"{LOCAL_CINEMA_PATH}/CinemaPlayout") / f"server-{SERVER_ID}" / INFO_NEXT_PLAYING
+now_playing_file = (
+    Path(f"{config.REMOTE_LIBRARY_PATH}/CinemaPlayout") / f"server-{config.SERVER_ID}" / config.INFO_NOW_PLAYING
+)
+next_playing_file = (
+    Path(f"{config.REMOTE_LIBRARY_PATH}/CinemaPlayout") / f"server-{config.SERVER_ID}" / config.INFO_NEXT_PLAYING
+)
 
 
 async def setup_playout(client):
@@ -36,9 +41,9 @@ async def setup_playout(client):
 
 def copy_content_to_local_storage():
     asyncio.run(copy_playlist_items())
-    asyncio.run(remove_playlist_items())
+    # asyncio.run(remove_playlist_items())
     asyncio.run(copy_hold_items())
-    asyncio.run(remove_hold_items())
+    # asyncio.run(remove_hold_items())
 
 
 def set_now_playing(feature):
@@ -51,7 +56,7 @@ def set_next_playing(feature, start):
 
 def update_next_playing():
     with Session() as db_session:
-        next_playlist_feature = Playlist.get_next_item(db_session, datetime.now(), content_type=0)
+        next_playlist_feature = Playlist.get_next_item(db_session, datetime.now(), content_type=ContentType.Feature)
         next_feature = Feature.get_by_id(db_session, next_playlist_feature.content_id)
         logger.debug(f"Update next playing {next_feature}")
         set_next_playing(next_feature, next_playlist_feature.start)
@@ -99,7 +104,7 @@ async def playout_loop(client):
                     await asyncio.sleep(30)
                     continue
 
-                if playlist_item.content_type == "Feature":
+                if playlist_item.content_type == ContentType.Feature:
                     feature = Feature.get_by_id(db_session, playlist_item.content_id)
                     if not feature.local_path.exists():
                         logger.error(f"Feature is not available in local storage. {feature}")
@@ -138,7 +143,7 @@ async def playout_loop(client):
 
 
 def main_loop():
-    logger.info(f"Starting cinema {SERVER_ID}")
+    logger.info(f"Starting cinema {config.SERVER_ID}")
     loop = asyncio.get_event_loop()
     client = OBSClient(loop=loop)
 

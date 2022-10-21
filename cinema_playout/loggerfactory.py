@@ -1,12 +1,12 @@
 import logging
 
-from cinema_playout.config import SERVER_ID, LOG_LEVEL
+from cinema_playout import config
 from cinema_playout.telegram import send_message
 
 
 class TelegramHandler(logging.Handler):
     def emit(self, record):
-        message = f"cinema-{SERVER_ID}: {record.msg}"
+        message = f"cinema-{config.SERVER_ID}: {record.msg}"
         send_message(message)
 
 
@@ -40,7 +40,7 @@ class LoggerFactory:
         A static method called by other modules to initialize logger in their own module
         """
         if log_level is None:
-            log_level = LOG_LEVEL
+            log_level = config.LOG_LEVEL
         logger = LoggerFactory.__create_logger(log_file, log_level)
 
         # return the logger object

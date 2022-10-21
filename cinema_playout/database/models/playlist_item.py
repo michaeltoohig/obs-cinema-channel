@@ -1,11 +1,32 @@
 from pathlib import Path, PureWindowsPath
 from sqlalchemy import Column, DateTime, Float, Integer, String, select
-from cinema_playout.config import LOCAL_MEDIA_PATH
 
+from cinema_playout import config
 from cinema_playout.database.models.base import Base
 
 
-class Feature(Base):
+class PlaylistItem(object):
+    @classmethod
+    def get_by_id(cls, db_session, id):
+        query = select(cls).filter(cls.id == id)
+        return db_session.execute(query).scalars().one()
+
+    @property
+    def path(self) -> PureWindowsPath:
+        return PureWindowsPath(self._path)
+
+    @property
+    def remote_path(self) -> Path:
+        relative = self.path.relative_to("//10.0.0.126/media")
+        return Path(config.REMOTE_LIBRARY_PATH) / relative
+
+    @property
+    def local_path(self) -> Path:
+        relative = self.path.relative_to("//10.0.0.126/media")
+        return Path(config.LOCAL_LIBRARY_PATH) / relative
+
+
+class Feature(Base, PlaylistItem):
     __tablename__ = "Features"
 
     id = Column("FeatureID", Integer(), primary_key=True)
@@ -28,16 +49,14 @@ class Feature(Base):
         else:
             return f"{self.name} ({self.year})"
 
-    @property
-    def path(self) -> PureWindowsPath:
-        return PureWindowsPath(self._path)
 
-    @property
-    def local_path(self) -> Path:
-        relative = self.path.relative_to("//10.0.0.126/media")
-        return Path(LOCAL_MEDIA_PATH) / relative
+# class Advertisement(Base, PlaylistItem):
+#     __tablename__ = "Advertisements"
 
-    @classmethod
-    def get_by_id(cls, db_session, id):
-        query = select(cls).filter(cls.id == id)
-        return db_session.execute(query).scalars().one()
+
+# class Preview(Base, PlaylistItem):
+#     __tablename__ = "Previews"
+
+
+# class Filler(Base, PlaylistItem):
+#     __tablename__ = "Fillers"

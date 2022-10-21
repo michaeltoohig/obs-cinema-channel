@@ -1,35 +1,34 @@
 import asyncio
 import shutil
 from datetime import datetime, timedelta
-from pathlib import Path, PureWindowsPath
+from pathlib import Path
 
-from cinema_playout.config import DEBUG, LOCAL_CINEMA_PATH, LOCAL_MEDIA_PATH, SERVER_ID
-from cinema_playout.database.models.feature import Feature
-from cinema_playout.database.models.playlist import Playlist
+from cinema_playout import config
+from cinema_playout.database.models.playlist_item import Feature, PlaylistItem
+from cinema_playout.database.models.playlist import ContentType, Playlist
 from cinema_playout.database.session import Session
 from cinema_playout.loggerfactory import LoggerFactory
 
 logger = LoggerFactory.get_logger("tasks")
 
 
-async def copy_playlist_item_to_playout(src: PureWindowsPath):
+def copy_playlist_item_to_playout(item: PlaylistItem):
     """
     Copy a remote playlist item to local storage.
     File paths are stored in database as full CIFS share path... which I can't change.
     """
+    src = item.remote_path
+    dest = item.local_path
     logger.debug(f"Checking {src} for copy")
-    relative = src.relative_to("//10.0.0.126/media")  # hardcoded
-    src = Path(LOCAL_CINEMA_PATH) / relative
     if not src.exists():
         logger.error(f"playlist item {src} does not exist in library")
         return
-    dest = Path(LOCAL_MEDIA_PATH) / relative
-    if not DEBUG:
+    if not config.DEBUG:
         if not dest.parent.exists():
             dest.parent.mkdir(parents=True, exist_ok=True)
         if not dest.exists():
             logger.info(f"Copying playlist item {src}")
-            await asyncio.to_thread(shutil.copyfile, src, dest)
+            shutil.copyfile(src, dest)
 
 
 async def copy_playlist_items():
@@ -38,9 +37,9 @@ async def copy_playlist_items():
     end = start + timedelta(days=14)  # hardcoded value
     with Session() as db_session:
         playlist_items = Playlist.get_between(db_session, start, end)
-        for pi in (pi for pi in playlist_items if pi.content_type == "Feature"):
+        for pi in (pi for pi in playlist_items if pi.content_type == ContentType.Feature):
             feature = Feature.get_by_id(db_session, pi.content_id)
-            await copy_playlist_item_to_playout(feature.path)
+            copy_playlist_item_to_playout(feature)
 
 
 async def remove_playlist_items():
@@ -53,19 +52,19 @@ async def remove_playlist_items():
     remote_files = []
     with Session() as db_session:
         playlist_items = Playlist.get_between(db_session, start, end)
-        for pi in (pi for pi in playlist_items if pi.content_type == "Feature"):
+        for pi in (pi for pi in playlist_items if pi.content_type == ContentType.Feature):
             feature = Feature.get_by_id(db_session, pi.content_id)
-            remote_files.append(PureWindowsPath(feature._path).relative_to("//10.0.0.126/media"))  # hardcoded)
+            remote_files.append(feature.remote_path.relative_to(config.REMOTE_LIBRARY_PATH))
     local_files = []
-    for fp in (Path(LOCAL_MEDIA_PATH) / "Movies").glob("**/*"):
+    for fp in (Path(config.LOCAL_LIBRARY_PATH) / "Movies").glob("**/*"):
         if fp.is_dir():
             continue
-        local_files.append(fp.relative_to(LOCAL_MEDIA_PATH))
+        local_files.append(fp.relative_to(config.LOCAL_LIBRARY_PATH))
     files_to_remove = set(local_files) - set(remote_files)
     for fp in files_to_remove:
         logger.info(f"Removing {fp}")
-        if not DEBUG:
-            (Path(LOCAL_MEDIA_PATH) / fp).unlink()
+        if not config.DEBUG:
+            (Path(config.LOCAL_LIBRARY_PATH) / fp).unlink()
 
 
 async def copy_hold_item_to_playout(src: Path):
@@ -74,10 +73,10 @@ async def copy_hold_item_to_playout(src: Path):
     if not src.exists():
         logger.error("hold item does not exist in library")
         return
-    root_path = Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}"
+    root_path = Path(config.REMOTE_LIBRARY_PATH) / f"CinemaPlayout/server-{config.SERVER_ID}"
     relative = src.relative_to(root_path)
-    dest = Path(LOCAL_MEDIA_PATH) / relative
-    if not DEBUG:
+    dest = Path(config.LOCAL_LIBRARY_PATH) / relative
+    if not config.DEBUG:
         if not dest.parent.exists():
             dest.parent.mkdir()
         if not dest.exists():
@@ -87,48 +86,45 @@ async def copy_hold_item_to_playout(src: Path):
 
 async def copy_hold_items():
     """Copy hold items to playout."""
-    videos = (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-videos").glob("*")
+    videos = (Path(config.REMOTE_LIBRARY_PATH) / f"CinemaPlayout/server-{config.SERVER_ID}/hold-videos").glob("*")
     for i in videos:
         await copy_hold_item_to_playout(i)
-    music = (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-music").glob("*")
+    music = (Path(config.REMOTE_LIBRARY_PATH) / f"CinemaPlayout/server-{config.SERVER_ID}/hold-music").glob("*")
     for i in music:
         await copy_hold_item_to_playout(i)
 
 
 async def remove_hold_items():
-    remote_root_path = Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}"
+    remote_root_path = Path(config.REMOTE_LIBRARY_PATH) / f"CinemaPlayout/server-{config.SERVER_ID}"
     # remove videos
-    local_files = [fp.relative_to(LOCAL_MEDIA_PATH) for fp in (Path(LOCAL_MEDIA_PATH) / "hold-videos").glob("*")]
+    local_files = [
+        fp.relative_to(config.LOCAL_LIBRARY_PATH) for fp in (Path(config.LOCAL_LIBRARY_PATH) / "hold-videos").glob("*")
+    ]
     remote_files = [
         fp.relative_to(remote_root_path)
-        for fp in (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-videos").glob("*")
+        for fp in (Path(config.REMOTE_LIBRARY_PATH) / f"CinemaPlayout/server-{config.SERVER_ID}/hold-videos").glob("*")
     ]
     if len(remote_files) > 0:
         files_to_remove = set(local_files) - set(remote_files)
         for fp in files_to_remove:
             logger.info(f"Removing {fp}")
-            if not DEBUG:
-                (Path(LOCAL_MEDIA_PATH) / fp).unlink()
+            if not config.DEBUG:
+                (Path(config.LOCAL_LIBRARY_PATH) / fp).unlink()
     else:
         logger.warning("No remote hold videos - will not delete local copies")
     # remove music
-    local_files = [fp.relative_to(LOCAL_MEDIA_PATH) for fp in (Path(LOCAL_MEDIA_PATH) / "hold-music").glob("*")]
+    local_files = [
+        fp.relative_to(config.LOCAL_LIBRARY_PATH) for fp in (Path(config.LOCAL_LIBRARY_PATH) / "hold-music").glob("*")
+    ]
     remote_files = [
         fp.relative_to(remote_root_path)
-        for fp in (Path(LOCAL_CINEMA_PATH) / f"CinemaPlayout/server-{SERVER_ID}/hold-music").glob("*")
+        for fp in (Path(config.REMOTE_LIBRARY_PATH) / f"CinemaPlayout/server-{config.SERVER_ID}/hold-music").glob("*")
     ]
     if len(remote_files) > 0:
         files_to_remove = set(local_files) - set(remote_files)
         for fp in files_to_remove:
             logger.info(f"Removing {fp}")
-            if not DEBUG:
-                (Path(LOCAL_MEDIA_PATH) / fp).unlink()
+            if not config.DEBUG:
+                (Path(config.LOCAL_LIBRARY_PATH) / fp).unlink()
     else:
         logger.warning("No remote hold music - will not delete local copies")
-
-
-# if __name__ == "__main__":
-# asyncio.run(copy_playlist_items())
-# asyncio.run(remove_playlist_items())
-# asyncio.run(copy_hold_items())
-# remove_hold_items()

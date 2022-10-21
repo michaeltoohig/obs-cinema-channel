@@ -15,18 +15,21 @@ def library(ctx):
 
 
 @library.command()
-def copy_to_local():
+def copy():
+    """Copy remote copies to local storage ready for playout."""
     asyncio.run(copy_playlist_items())
     asyncio.run(copy_hold_items())
 
 
 @library.command()
-def remove_from_local():
+def free():
+    """Free space on local storage by removing old items."""
     asyncio.run(remove_playlist_items())
     asyncio.run(remove_hold_items())
 
 
 @library.command()
 def check():
+    """Check files exist where they should on remote and local storage."""
     # TODO check all features are available in library and find incorrect file locations
     pass

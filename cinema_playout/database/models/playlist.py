@@ -1,16 +1,24 @@
 from datetime import datetime
+from enum import IntEnum
 
 from sqlalchemy import Column, DateTime, Integer, and_, select
 
-from cinema_playout.config import SERVER_ID
+from cinema_playout import config
 
 from .base import Base
+
+
+class ContentType(IntEnum):
+    Feature = 0
+    Ad = 1
+    Preview = 2
+    Filler = 3
 
 
 class Playlist(Base):
     __tablename__ = "Playlists"
 
-    _id = Column("ContentID", Integer(), primary_key=True)
+    id = Column("ContentID", Integer(), primary_key=True)
     feature_id = Column("FeatureID", Integer(), nullable=True)
     ad_id = Column("AdID", Integer(), nullable=True)
     filler_id = Column("FillerID", Integer(), nullable=True)
@@ -21,32 +29,27 @@ class Playlist(Base):
     end = Column("ContentEnd", DateTime(), nullable=False)
 
     def __str__(self):
-        return f"{self.content_type}:{self.content_id}:{self.server_id}:{self.start}"
+        return f"{self.content_type.name}:{self.content_id}:{self.server_id}:{self.start}"
 
     @property
     def content_type(self):
-        return {
-            0: "Feature",
-            1: "Ad",
-            2: "Preview",
-            3: "Filler",
-        }[self._content_type]
+        return ContentType(self._content_type)
 
     @property
     def content_id(self):
         return {
-            0: self.feature_id,
-            1: self.ad_id,
-            2: self.preview_id,
-            3: self.filler_id,
-        }[self._content_type]
+            ContentType.Feature: self.feature_id,
+            ContentType.Ad: self.ad_id,
+            ContentType.Preview: self.preview_id,
+            ContentType.Filler: self.filler_id,
+        }[self.content_type]
 
     @classmethod
     def get_item_at(
         cls,
         db_session,
         start: datetime,
-        server_id: int = SERVER_ID,
+        server_id: int = config.SERVER_ID,
     ):
         query = (
             select(cls)
@@ -65,12 +68,12 @@ class Playlist(Base):
         cls,
         db_session,
         start: datetime,
-        content_type: int = None,
-        server_id: int = SERVER_ID,
+        content_type: ContentType = None,
+        server_id: int = config.SERVER_ID,
     ):
         query = select(cls).filter(cls.server_id == server_id).filter(cls.start > start)
         if content_type is not None:
-            query = query.filter(cls._content_type == content_type)
+            query = query.filter(cls._content_type == content_type.value)
         query = query.order_by(cls.start.asc()).limit(1)
         return db_session.execute(query).scalars().first()
 
@@ -80,7 +83,7 @@ class Playlist(Base):
         db_session,
         start: datetime,
         end: datetime = None,
-        server_id: int = SERVER_ID,
+        server_id: int = config.SERVER_ID,
     ):
         query = select(cls).filter(cls.end > start)
         if end:
