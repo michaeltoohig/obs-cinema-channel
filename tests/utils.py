@@ -17,7 +17,7 @@ def random_feature(db_session, **kwargs):
     feature = models.Feature()
     feature.name = name
     feature.year = year
-    feature._path = fr"\\10.0.0.126\media\Movies\Active\{name[0]}\{name} - {year}.mp4"
+    feature._path = fr"{config.SQL_LIBRARY_PATH}\Movies\Active\{name[0]}\{name} - {year}.mp4"
     feature._size = 0
     feature.status = 2  # active I think
     feature.play_count = 0

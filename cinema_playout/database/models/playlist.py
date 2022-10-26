@@ -83,11 +83,15 @@ class Playlist(Base):
         db_session,
         start: datetime,
         end: datetime = None,
+        *,
+        content_type: ContentType = None,
         server_id: int = config.SERVER_ID,
     ):
         query = select(cls).filter(cls.end > start)
         if end:
             query = query.filter(cls.start < end)
+        if content_type is not None:
+            query = query.filter(cls._content_type == content_type.value)
         if server_id:
             query = query.filter(cls.server_id == server_id)
         query = query.order_by(cls.start.asc())

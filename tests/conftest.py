@@ -6,9 +6,17 @@ from cinema_playout import config
 from cinema_playout.database.models.base import Base
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True, scope="function")
 def setup_mock_storage(tmp_path_factory):
-    config.REMOTE_LIBRARY_PATH = str(tmp_path_factory.mktemp("remote"))
+    remote = tmp_path_factory.mktemp("remote")
+    config.REMOTE_LIBRARY_PATH = str(remote)
+    config.REMOTE_HOLD_ROOT_PATH = str(remote / f"CinemaPlayout/server-{config.SERVER_ID}")
+    config.REMOTE_HOLD_VIDEO_PATH = str(
+        remote / f"CinemaPlayout/server-{config.SERVER_ID}/{config.DIRECTORY_HOLD_VIDEO}"
+    )
+    config.REMOTE_HOLD_MUSIC_PATH = str(
+        remote / f"CinemaPlayout/server-{config.SERVER_ID}/{config.DIRECTORY_HOLD_MUSIC}"
+    )
     config.LOCAL_LIBRARY_PATH = str(tmp_path_factory.mktemp("local"))
 
 

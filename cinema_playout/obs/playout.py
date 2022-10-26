@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from cinema_playout import config
 from cinema_playout.database.models import Feature, Playlist
@@ -17,18 +17,12 @@ from cinema_playout.tasks import (
     remove_hold_items,
     remove_playlist_items,
 )
-from cinema_playout.telegram import send_message
 
 logger = LoggerFactory.get_logger("obs.playout")
 
 
-# path accessible by Python
-now_playing_file = (
-    Path(f"{config.REMOTE_LIBRARY_PATH}/CinemaPlayout") / f"server-{config.SERVER_ID}" / config.INFO_NOW_PLAYING
-)
-next_playing_file = (
-    Path(f"{config.REMOTE_LIBRARY_PATH}/CinemaPlayout") / f"server-{config.SERVER_ID}" / config.INFO_NEXT_PLAYING
-)
+now_playing_file = Path(config.REMOTE_HOLD_ROOT_PATH) / config.INFO_NOW_PLAYING
+next_playing_file = Path(config.REMOTE_HOLD_ROOT_PATH) / config.INFO_NEXT_PLAYING
 
 
 async def setup_playout(client):
@@ -36,14 +30,13 @@ async def setup_playout(client):
     # client.register_event_callback(on_mediaplaybackended, "MediaInputPlaybackEnded")
     await client.show_current_feature_name(False)
     await client.show_next_feature_name(False)
-    pass
 
 
 def copy_content_to_local_storage():
-    asyncio.run(copy_playlist_items())
-    # asyncio.run(remove_playlist_items())
-    asyncio.run(copy_hold_items())
-    # asyncio.run(remove_hold_items())
+    copy_playlist_items()
+    remove_playlist_items()
+    copy_hold_items()
+    remove_hold_items()
 
 
 def set_now_playing(feature):
@@ -64,7 +57,7 @@ def update_next_playing():
 
 def start_scheduler():
     """Scheduler to collect local media files."""
-    scheduler = AsyncIOScheduler()
+    scheduler = BackgroundScheduler()
     # Only copy during midnight hours due to playout performance issues
     scheduler.add_job(copy_content_to_local_storage, "cron", hour=3)
     scheduler.start()
@@ -89,7 +82,7 @@ async def show_feature_name_loop(client):
 async def playout_loop(client):
     """Main playout loop for cinema channel."""
     feature = None
-    await client.request("OpenProjector", {"type": "Preview", "monitor": 1})
+    await client.request("OpenProjector", {"type": "Preview", "monitor": -1})
 
     with Session() as db_session:
         while True:
@@ -113,7 +106,6 @@ async def playout_loop(client):
                         sleepUntil = (playlist_item.end - datetime.now()).total_seconds()
                         await asyncio.sleep(sleepUntil)
                         continue
-                        # asyncio.run(copy_playlist_item_to_playout(feature.path))
                     logger.info(f"Got from playlist {feature}")
                     set_now_playing(feature)
                 else:

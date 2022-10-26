@@ -17,12 +17,12 @@ class PlaylistItem(object):
 
     @property
     def remote_path(self) -> Path:
-        relative = self.path.relative_to("//10.0.0.126/media")
+        relative = self.path.relative_to(config.SQL_LIBRARY_PATH)
         return Path(config.REMOTE_LIBRARY_PATH) / relative
 
     @property
     def local_path(self) -> Path:
-        relative = self.path.relative_to("//10.0.0.126/media")
+        relative = self.path.relative_to(config.SQL_LIBRARY_PATH)
         return Path(config.LOCAL_LIBRARY_PATH) / relative
 
 

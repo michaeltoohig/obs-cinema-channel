@@ -1,5 +1,3 @@
-import asyncio
-
 import click
 
 from cinema_playout.loggerfactory import LoggerFactory
@@ -17,15 +15,15 @@ def library(ctx):
 @library.command()
 def copy():
     """Copy remote copies to local storage ready for playout."""
-    asyncio.run(copy_playlist_items())
-    asyncio.run(copy_hold_items())
+    copy_playlist_items()
+    copy_hold_items()
 
 
 @library.command()
 def free():
     """Free space on local storage by removing old items."""
-    asyncio.run(remove_playlist_items())
-    asyncio.run(remove_hold_items())
+    remove_playlist_items()
+    remove_hold_items()
 
 
 @library.command()

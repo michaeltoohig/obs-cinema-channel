@@ -69,41 +69,51 @@ class OBSClient:
         logger.debug(f"Playing feature {fp}")
         await self.request("SetCurrentScene", {"scene-name": config.SCENE_FEATURE})
         await self.request(
-            "SetSourceSettings", {"sourceName": SOURCE_FEATURE, "sourceSettings": {"playlist": [{"value": str(fp)}]}}
+            "SetSourceSettings",
+            {"sourceName": config.SOURCE_FEATURE, "sourceSettings": {"playlist": [{"value": str(fp)}]}},
         )
         if offset:
             logger.debug(f"SetMediaTime offset {offset}")
             await asyncio.sleep(1)
-            await self.request("SetMediaTime", {"sourceName": SOURCE_FEATURE, "timestamp": offset})
+            await self.request("SetMediaTime", {"sourceName": config.SOURCE_FEATURE, "timestamp": offset})
         await self.request(
             "SetSceneItemProperties",
             {
                 "scene-name": config.SCENE_FEATURE,
-                "item": SOURCE_FEATURE,
+                "item": config.SOURCE_FEATURE,
                 "position": {"x": 0, "y": 0},
                 "bounds": {"x": 1920, "y": 1080, "type": "OBS_BOUNDS_MAX_ONLY"},
                 "scale": {"x": 4, "y": 4, "filter": "OBS_SCALE_AREA"},
             },
         )
 
+    async def play_hold(self):
+        """
+        Switch to hold scene and queue up all video backgrounds and music.
+        """
+        logger.debug("Playing hold scene")
+        await self.request("SetCurrentScene", {"scene-name": config.SCENE_HOLD})
+
     async def update_hold_media(self):
         """Set hold scene media content."""
-        vids = (Path(LOCAL_LIBRARY_PATH) / "hold-videos").glob("*")
+        vids = Path(config.LOCAL_HOLD_VIDEO_PATH).glob("*")
         vids = [
             {
                 "hidden": False,
                 "selected": False,
-                "value": str(Path(config.OBS_LIBRARY_PATH) / v.relative_to(LOCAL_LIBRARY_PATH)),
+                "value": str(Path(config.OBS_LIBRARY_PATH) / v.relative_to(config.LOCAL_LIBRARY_PATH)),
             }
             for v in vids
         ]
-        await self.request("SetSourceSettings", {"sourceName": SOURCE_HOLD_VIDEO, "sourceSettings": {"playlist": vids}})
-        music = (Path(LOCAL_LIBRARY_PATH) / "hold-music").glob("*")
+        await self.request(
+            "SetSourceSettings", {"sourceName": config.SOURCE_HOLD_VIDEO, "sourceSettings": {"playlist": vids}}
+        )
+        music = Path(config.LOCAL_HOLD_MUSIC_PATH).glob("*")
         music = [
             {
                 "hidden": False,
                 "selected": False,
-                "value": str(Path(config.OBS_LIBRARY_PATH) / m.relative_to(LOCAL_LIBRARY_PATH)),
+                "value": str(Path(config.OBS_LIBRARY_PATH) / m.relative_to(config.LOCAL_LIBRARY_PATH)),
             }
             for m in music
         ]
@@ -115,7 +125,7 @@ class OBSClient:
         logger.debug("Showing current feature name")
         await self.request(
             "SetSceneItemProperties",
-            {"scene-name": config.SCENE_FEATURE, "item": SOURCE_NOW_PLAYING, "visible": visible},
+            {"scene-name": config.SCENE_FEATURE, "item": config.SOURCE_NOW_PLAYING, "visible": visible},
         )
 
     async def show_next_feature_name(self, visible: bool):
@@ -125,5 +135,5 @@ class OBSClient:
         logger.debug("Showing next feature name")
         await self.request(
             "SetSceneItemProperties",
-            {"scene-name": config.SCENE_FEATURE, "item": SOURCE_NEXT_PLAYING, "visible": visible},
+            {"scene-name": config.SCENE_FEATURE, "item": config.SOURCE_NEXT_PLAYING, "visible": visible},
         )
