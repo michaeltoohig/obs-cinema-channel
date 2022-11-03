@@ -82,7 +82,7 @@ class OBSClient:
                 "scene-name": config.SCENE_FEATURE,
                 "item": config.SOURCE_FEATURE,
                 "position": {"x": 0, "y": 0},
-                "bounds": {"x": 1920, "y": 1080, "type": "OBS_BOUNDS_MAX_ONLY"},
+                "bounds": {"x": config.OBS_SCREEN_X, "y": config.OBS_SCREEN_Y, "type": "OBS_BOUNDS_MAX_ONLY"},
                 "scale": {"x": 4, "y": 4, "filter": "OBS_SCALE_AREA"},
             },
         )

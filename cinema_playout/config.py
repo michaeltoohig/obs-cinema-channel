@@ -13,6 +13,8 @@ DATABASE_URI = os.environ.get("DATABASE_URI")
 OBS_HOST = os.environ.get("OBS_HOST")
 OBS_PORT = os.environ.get("OBS_PORT")
 OBS_PASSWORD = os.environ.get("OBS_PASSWORD")
+OBS_SCREEN_X = int(os.environ.get("OBS_SCREEN_X", 1920))
+OBS_SCREEN_Y = int(os.environ.get("OBS_SCREEN_Y", 1080))
 
 SERVER_ID = os.environ.get("SERVER_ID", 0)  # for multiple instances sharing a database
 
