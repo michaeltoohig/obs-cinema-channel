@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from cinema_playout import config
 
 from cinema_playout.database.models.playlist import ContentType
 from cinema_playout.database.session import Session
@@ -11,7 +12,7 @@ logger = LoggerFactory.get_logger("tasks")
 def copy_playlist_items():
     """Copy playlist items to playout."""
     start = datetime.now()
-    end = start + timedelta(days=14)  # XXX hardcoded
+    end = start + timedelta(days=config.LOCAL_LIBRARY_KEEP_FUTURE)
     with Session() as db_session:
         library = LibraryService(db_session)
         library.copy_playlist_items(start, end, content_type=ContentType.Feature)
@@ -22,8 +23,8 @@ def remove_playlist_items():
     Remove old playlist items from local storage.
     Keeps many distant playlist items in local storage for local playback if there were network issues.
     """
-    start = datetime.now() - timedelta(days=14)  # XXX hardcoded
-    end = datetime.now() + timedelta(days=14)  # XXX hardcoded
+    start = datetime.now() - timedelta(days=config.LOCAL_LIBRARY_KEEP_PAST)
+    end = datetime.now() + timedelta(days=config.LOCAL_LIBRARY_KEEP_FUTURE)
     with Session() as db_session:
         library = LibraryService(db_session)
         library.remove_playlist_items(start, end, content_type=ContentType.Feature)

@@ -6,4 +6,4 @@
 - [x] check media is available locally before attempting playback
 - [ ] fetch a day or more of playlist schedule and run from that
 
-- [ ] confirm too many sessions are not being opened by running playout loop
+- [x] confirm too many sessions are not being opened by running playout loop

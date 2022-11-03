@@ -19,7 +19,7 @@ class Base:
             return db_session.commit()
         except SQLAlchemyError as exc:
             db_session.rollback()
-            raise exc  # TODO replace with proper exception handling
+            raise exc
 
     def delete(self, db_session):
         """
@@ -31,7 +31,7 @@ class Base:
             db_session.commit()
             return True
         except SQLAlchemyError as exc:
-            raise exc  # TODO replace with proper exception handling
+            raise exc
 
     def update(self, db_session, **kwargs):
         """
