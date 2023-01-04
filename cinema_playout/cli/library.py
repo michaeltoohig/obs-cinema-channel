@@ -1,9 +1,9 @@
 import click
+import structlog
 
-from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.tasks import copy_hold_items, copy_playlist_items, remove_hold_items, remove_playlist_items
 
-logger = LoggerFactory.get_logger("cli.library")
+logger = structlog.get_logger()
 
 
 @click.group()

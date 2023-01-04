@@ -1,12 +1,14 @@
 from datetime import datetime
 from pathlib import Path
 import shutil
+
 from cinema_playout import config
 from cinema_playout.database.models.playlist import ContentType, Playlist
 from cinema_playout.database.models.playlist_item import Feature, PlaylistItem
-from cinema_playout.loggerfactory import LoggerFactory
 
-logger = LoggerFactory.get_logger("library")
+import structlog
+
+logger = structlog.get_logger()
 
 
 class LibraryService:
@@ -79,7 +81,7 @@ class LibraryService:
             self._copy_hold_item(fp)
 
     def remove_hold_items(self):
-        # remove hold videos
+        # remove hold videos from local storage
         keep_files = []
         for fp in Path(config.REMOTE_HOLD_VIDEO_PATH).glob("*"):
             fp = fp.relative_to(Path(config.REMOTE_HOLD_ROOT_PATH))
@@ -97,8 +99,8 @@ class LibraryService:
                     (Path(config.LOCAL_LIBRARY_PATH) / fp).unlink()
                 logger.info(f"{fp} removed from local")
         else:
-            logger.warning("No remote hold videos - will not delete local copies")
-        # remove hold music
+            logger.warn("No remote hold videos - will not delete local copies")
+        # remove hold music from local storage
         keep_files = []
         for fp in Path(config.REMOTE_HOLD_MUSIC_PATH).glob("*"):
             fp = fp.relative_to(Path(config.REMOTE_HOLD_ROOT_PATH))
@@ -116,4 +118,4 @@ class LibraryService:
                     (Path(config.LOCAL_LIBRARY_PATH) / fp).unlink()
                 logger.info(f"{fp} removed from local")
         else:
-            logger.warning("No remote hold music - will not delete local copies")
+            logger.warn("No remote hold music - will not delete local copies")

@@ -4,9 +4,10 @@ from cinema_playout import config
 from cinema_playout.database.models.playlist import ContentType
 from cinema_playout.database.session import Session
 from cinema_playout.library import LibraryService
-from cinema_playout.loggerfactory import LoggerFactory
 
-logger = LoggerFactory.get_logger("tasks")
+import structlog
+
+logger = structlog.get_logger()
 
 
 def copy_playlist_items():

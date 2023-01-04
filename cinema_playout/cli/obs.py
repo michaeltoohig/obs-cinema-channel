@@ -1,10 +1,10 @@
 import click
+import structlog
 
 from cinema_playout.cli.utils import use_db_session
-from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.obs.playout import main_loop
 
-logger = LoggerFactory.get_logger("cli.obs")
+logger = structlog.get_logger()
 
 
 @click.group()

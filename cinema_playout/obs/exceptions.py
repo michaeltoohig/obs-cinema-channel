@@ -1,6 +1,6 @@
-from cinema_playout.loggerfactory import LoggerFactory
+import structlog
 
-logger = LoggerFactory.get_logger("obs.exceptions")
+logger = structlog.get_logger()
 
 
 class OBSError(Exception):

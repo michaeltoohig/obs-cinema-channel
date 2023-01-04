@@ -8,12 +8,12 @@ import asyncio
 from pathlib import Path
 
 import simpleobsws
+import structlog
 
 from cinema_playout import config
-from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.obs.exceptions import OBSConnectionError
 
-logger = LoggerFactory.get_logger("obs.client")
+logger = structlog.get_logger()
 
 
 class OBSClient:

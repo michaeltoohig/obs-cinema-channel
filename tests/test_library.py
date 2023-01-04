@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import logging
 from pathlib import Path
 import random
 
@@ -63,7 +62,6 @@ def test_copy_playlist_items(db_session, remote_library_items):
     # --- end setup
     library = LibraryService(db_session)
     library.copy_playlist_items(start, end, content_type=models.ContentType.Feature)
-    # --- test
     for item in items:
         feature = models.Feature.get_by_id(db_session, id=item.content_id)
         assert feature.local_path.exists()
@@ -85,7 +83,6 @@ def test_remove_playlist_items(db_session, remote_library_items, end_dur, thresh
     # --- end setup
     threshold = start + timedelta(days=threshold_dur)
     library.remove_playlist_items(start, threshold, content_type=models.ContentType.Feature)
-    # --- test
     items = models.Playlist.get_between(db_session, start, end, content_type=models.ContentType.Feature)
     for item in items:
         feature = models.Feature.get_by_id(db_session, id=item.content_id)
@@ -132,13 +129,12 @@ def test_remove_hold_items(db_session, remote_hold_items):
             assert not local_hold_item.exists()
 
 
-def test_remove_hold_items__warns_no_remote_content(caplog, remote_hold_items):
+def test_remove_hold_items__warns_no_remote_content(log, remote_hold_items):
     library = LibraryService()
     library.copy_hold_items()
     for item in remote_hold_items:
         item.unlink()
     # --- end setup
-    with caplog.at_level(logging.WARNING):
-        library.remove_hold_items()
-    assert 'No remote hold videos - will not delete local copies' in caplog.text
-    assert 'No remote hold music - will not delete local copies' in caplog.text
+    library.remove_hold_items()
+    assert log.has("No remote hold videos - will not delete local copies", level="warning")
+    assert log.has("No remote hold music - will not delete local copies", level="warning")

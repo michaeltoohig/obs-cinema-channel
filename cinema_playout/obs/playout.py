@@ -4,12 +4,12 @@ from datetime import datetime
 from pathlib import Path
 
 from apscheduler.schedulers.background import BackgroundScheduler
+import structlog
 
 from cinema_playout import config
 from cinema_playout.database.models import Feature, Playlist
 from cinema_playout.database.models.playlist import ContentType
 from cinema_playout.database.session import Session
-from cinema_playout.loggerfactory import LoggerFactory
 from cinema_playout.obs.client import OBSClient
 from cinema_playout.tasks import (
     copy_hold_items,
@@ -18,7 +18,7 @@ from cinema_playout.tasks import (
     remove_playlist_items,
 )
 
-logger = LoggerFactory.get_logger("obs.playout")
+logger = structlog.get_logger()
 
 
 now_playing_file = Path(config.REMOTE_HOLD_ROOT_PATH) / config.INFO_NOW_PLAYING

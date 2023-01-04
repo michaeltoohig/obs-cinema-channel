@@ -19,10 +19,12 @@ flake8 = {version="^3.9.2", optional=true}
 flake8-docstrings = {version="^1.6.0", optional=true}
 pytest = {version="^7.1.2", optional=true}
 pytest-cov = {version="^2.12.0", optional=true}
+pytest-structlog = {version="^0.6", optional=true}
 bump2version = {version="^1.0.1", optional=true}
 simpleobsws = {git = "https://github.com/IRLToolkit/simpleobsws", rev = "simpleobsws-4.x"}
 APScheduler = "^3.9.1"
 requests = "^2.28.1"
+structlog = "^22.3.0"
 
 [tool.poetry.extras]
 test = [
@@ -32,6 +34,7 @@ test = [
     "flake8",
     "flake8-docstrings",
     "pytest-cov"
+    "pytest-structlog",
     ]
 
 dev = ["bump2version"]
