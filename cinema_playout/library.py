@@ -1,12 +1,12 @@
+import shutil
 from datetime import datetime
 from pathlib import Path
-import shutil
+
+import structlog
 
 from cinema_playout import config
 from cinema_playout.database.models.playlist import ContentType, Playlist
 from cinema_playout.database.models.playlist_item import Feature, PlaylistItem
-
-import structlog
 
 logger = structlog.get_logger()
 

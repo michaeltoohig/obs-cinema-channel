@@ -6,8 +6,9 @@ import structlog
 from cinema_playout.telegram import send_message
 
 
-def send_telegram_alerts(logger: logging.Logger, method_name: str, event_dict: structlog.typing.EventDict
-    ) -> structlog.typing.EventDict:
+def send_telegram_alerts(
+    logger: logging.Logger, method_name: str, event_dict: structlog.typing.EventDict
+) -> structlog.typing.EventDict:
     """
     Error level logs or higher are sent via Telegram.
     """
@@ -21,7 +22,7 @@ def send_telegram_alerts(logger: logging.Logger, method_name: str, event_dict: s
             pass
 
     return event_dict
-        
+
 
 def configure_logger(strict, level=logging.INFO) -> None:
     logging.basicConfig(

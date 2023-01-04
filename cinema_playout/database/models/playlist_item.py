@@ -1,4 +1,5 @@
 from pathlib import Path, PureWindowsPath
+
 from sqlalchemy import Column, DateTime, Float, Integer, String, select
 
 from cinema_playout import config

@@ -3,20 +3,15 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from apscheduler.schedulers.background import BackgroundScheduler
 import structlog
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from cinema_playout import config
 from cinema_playout.database.models import Feature, Playlist
 from cinema_playout.database.models.playlist import ContentType
 from cinema_playout.database.session import Session
 from cinema_playout.obs.client import OBSClient
-from cinema_playout.tasks import (
-    copy_hold_items,
-    copy_playlist_items,
-    remove_hold_items,
-    remove_playlist_items,
-)
+from cinema_playout.tasks import copy_hold_items, copy_playlist_items, remove_hold_items, remove_playlist_items
 
 logger = structlog.get_logger()
 

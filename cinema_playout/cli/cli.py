@@ -1,12 +1,13 @@
 import logging
 import shutil
+
 import click
 
 from cinema_playout import config
-
-from .obs import obs as obs_cli
-from .library import library as library_cli
 from cinema_playout.logging import configure_logger
+
+from .library import library as library_cli
+from .obs import obs as obs_cli
 
 
 @click.group()
@@ -19,11 +20,6 @@ def cli(strict, verbose):
     idx = min(verbose, 2)
     level = log_levels[idx]
     configure_logger(strict, level)
-
-    import structlog
-    log = structlog.get_logger()
-    log.error("test", hello="world")
-    
 
 
 cli.add_command(obs_cli)

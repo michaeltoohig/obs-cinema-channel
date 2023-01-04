@@ -1,6 +1,6 @@
+import random
 from datetime import datetime, timedelta
 from pathlib import Path
-import random
 
 import pytest
 

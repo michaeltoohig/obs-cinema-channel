@@ -33,7 +33,7 @@ test = [
     "isort",
     "flake8",
     "flake8-docstrings",
-    "pytest-cov"
+    "pytest-cov",
     "pytest-structlog",
     ]
 

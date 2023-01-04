@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
 import random
 import string
+from datetime import datetime, timedelta
 
 from cinema_playout import config
 from cinema_playout.database import models
