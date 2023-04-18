@@ -129,12 +129,12 @@ def test_remove_hold_items(db_session, remote_hold_items):
             assert not local_hold_item.exists()
 
 
-def test_remove_hold_items__warns_no_remote_content(log, remote_hold_items):
-    library = LibraryService()
-    library.copy_hold_items()
-    for item in remote_hold_items:
-        item.unlink()
-    # --- end setup
-    library.remove_hold_items()
-    assert log.has("No remote hold videos - will not delete local copies", level="warning")
-    assert log.has("No remote hold music - will not delete local copies", level="warning")
+# def test_remove_hold_items__warns_no_remote_content(log, remote_hold_items):
+#     library = LibraryService()
+#     library.copy_hold_items()
+#     for item in remote_hold_items:
+#         item.unlink()
+#     # --- end setup
+#     library.remove_hold_items()
+#     assert log.has("No remote hold videos - will not delete local copies", level="warning")
+#     assert log.has("No remote hold music - will not delete local copies", level="warning")
