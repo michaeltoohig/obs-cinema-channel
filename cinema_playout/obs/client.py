@@ -137,3 +137,7 @@ class OBSClient:
             "SetSceneItemProperties",
             {"scene-name": config.SCENE_FEATURE, "item": config.SOURCE_NEXT_PLAYING, "visible": visible},
         )
+
+    async def open_fullscreen(self):
+        logger.debug("Opening projector")
+        await self.request("OpenProjector", {"type": "Preview", "monitor": -1})
